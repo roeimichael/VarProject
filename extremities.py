@@ -32,6 +32,16 @@ def check_pos_size(df):
             f"portfolio isnt balanced, a risk of liquidation approaching {round(df['Protfilio Precentage'].sum(), 2)}")
 
 
+def check_var_quality(df):
+    qualitiys = df.groupby(['Qual']).count()
+    mid, good, bad = qualitiys['Symbol']['MID'], qualitiys['Symbol']['GOOD'], qualitiys['Symbol']['BAD']
+    total = mid + good
+    if bad > 0:
+        print("there are stocks with bad quality VAR in portfolio")
+    if good / total < 0.4:
+        print("under 40% of stocks are good and more than 60% are mid")
+
+
 def get_corr_mat(df):
     data = pdr.get_data_yahoo(df['Symbol'], start="2022-01-01", end=dt.date.today())['Close']
     corr = data.corr()

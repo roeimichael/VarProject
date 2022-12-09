@@ -1,14 +1,18 @@
-import pandas as pd
-from pandas_datareader import data as pdr
-import yfinance as yf
 import numpy as np
+import pandas as pd
+import yfinance as yf
+from pandas_datareader import data as pdr
 import datetime as dt
-from scipy.stats import norm
 import openpyxl
 from openpyxl.styles import PatternFill
+from scipy.stats import norm
+
+INITIAL_INVESTMENT = 1000000
+NET_LIQUIDITY = 294000
+WEIGHTS = np.array([1])
 
 
-def get_var(initial_investment, weights, data):
+def calc_var(initial_investment, weights, data):
     returns = data.pct_change()
     cov_matrix = returns.cov()
     avg_rets = returns.mean()
@@ -22,20 +26,24 @@ def get_var(initial_investment, weights, data):
     return var_1d1
 
 
-def coloring(length):
-    wb = openpyxl.load_workbook(filename='./data/alltickers.xlsx')
-    ws = wb['Sheet1']
-    fill_cell1 = PatternFill(patternType='solid', fgColor='FC2C03')
-    fill_cell2 = PatternFill(patternType='solid', fgColor='FFFF00')
-    fill_cell3 = PatternFill(patternType='solid', fgColor='35FC03')
-    for i in range(2, round(length / 3)):
-        ws[f'G{i}'].fill = fill_cell3
-        ws[f'H{i}'] = 'GOOD'
-    for i in range(round(length / 3), round(9 * length / 10)):
-        ws[f'G{i}'].fill = fill_cell2
-        ws[f'H{i}'] = 'MID'
-    for i in range(round(9 * length / 10), length):
-        ws[f'G{i}'].fill = fill_cell1
-        ws[f'H{i}'] = 'BAD'
-    wb.save(filename='./data/alltickers.xlsx')
+def add_var_to_alltickers(path, initial_inv, weights):
+    df = pd.read_excel(path)
+    df['Var'] = 0
+    df['Qual'] = 0
+    tickers = df['Symbol'].tolist()
+    bad_tickers = []
+    for index, ticker in enumerate(tickers):
+        try:
+            data = pdr.get_data_yahoo([ticker], start="2018-01-01", end=dt.date.today())['Close']
+            df.at[index, 'Var'] = calc_var(initial_inv, weights, data)
+        except:
+            bad_tickers.append(ticker)
+    print(bad_tickers)
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df = df.sort_values(by='Var')
+    df.to_excel(path, index=False)
+
+
+if __name__ == '__main__':
+    add_var_to_alltickers("./data/alltickers.xlsx", INITIAL_INVESTMENT, np.array([1]))
 

@@ -28,7 +28,15 @@ def check_sectors(message):
     if df['Protfilio Precentage'].sum() > 1.3:
         str += f"|  portfolio isnt balanced, a risk of liquidation approaching {round(df['Protfilio Precentage'].sum(), 2)}  |\n"
     str += "-----------------------------------------\n"
+    qualitiys = df.groupby(['Qual']).count()
+    mid, good, bad = qualitiys['Symbol']['MID'], qualitiys['Symbol']['GOOD'], qualitiys['Symbol']['BAD']
+    total = mid +good
+    if bad > 0:
+        str += "there are stocks with bad quality VAR in portfolio\n"
+    if good/total < 0.4:
+        str += "under 40% of stocks are good and more than 60% are mid\n"
     bot.reply_to(message, str)
+
 
 if __name__ == '__main__':
     bot.polling()
