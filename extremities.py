@@ -6,12 +6,17 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 PORTFOLIO_PATH_AFTER_TRANS = "./data/actualportfolio.xlsx"
+SECTOR_PRECENTAILE = 0.2
+MAX_PORTFOLIO_SIZE = 20
+MAX_PRECENTAGE_PORTFOLIO = 1.3
+ALLOWED_BAD_POSITIONS = 0
+ALLOWED_RATIO_OF_GOOD_TO_TOTAL = 0.4
 
 
 def check_sectors(df):
     sectorSum = df.groupby(['Sector']).sum()
     for index, row in sectorSum.iterrows():
-        if row['Protfilio Precentage'] > 0.2:
+        if row['Protfilio Precentage'] > SECTOR_PRECENTAILE:
             print(f"{index} has too man open positions with {row['Protfilio Precentage']}")
 
 
@@ -24,12 +29,12 @@ def check_percentage(df):
 
 def check_amount(df):
     positions = df.groupby(['Symbol']).count().sum()['Position']
-    if positions > 20:
+    if positions > MAX_PORTFOLIO_SIZE:
         print(f"too many positions in portfolio current amount :{positions}")
 
 
 def check_pos_size(df):
-    if df['Protfilio Precentage'].sum() > 1.3:
+    if df['Protfilio Precentage'].sum() > MAX_PRECENTAGE_PORTFOLIO:
         print(
             f"portfolio isnt balanced, a risk of liquidation approaching {round(df['Protfilio Precentage'].sum(), 2)}")
 
@@ -38,9 +43,9 @@ def check_var_quality(df):
     qualitiys = df.groupby(['Qual']).count()
     mid, good, bad = qualitiys['Symbol']['MID'], qualitiys['Symbol']['GOOD'], qualitiys['Symbol']['BAD']
     total = mid + good
-    if bad > 0:
+    if bad > ALLOWED_BAD_POSITIONS:
         print("there are stocks with bad quality VAR in portfolio")
-    if good / total < 0.4:
+    if good / total < ALLOWED_RATIO_OF_GOOD_TO_TOTAL:
         print("under 40% of stocks are good and more than 60% are mid")
 
 
