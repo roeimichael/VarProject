@@ -89,12 +89,12 @@ def coloring_portfolio(filename):
 def get_var(portfolio_path, alltickers_path):
     coloring_portfolio(alltickers_path)
     alltickers_df = pd.read_excel(alltickers_path)
-    alltickers_list = alltickers_df['Symbol'].tolist()
     alltickers_df = alltickers_df.loc[:, ~alltickers_df.columns.str.contains('^Unnamed')]
+    alltickers_list = alltickers_df['Symbol'].tolist()
     portfolio_df = pd.read_excel(portfolio_path)
     portfolio_df['Var'] = 0
     portfolio_df['Qual'] = 0
-    portfolio_tickers = portfolio_df['Symbol']
+    portfolio_tickers = portfolio_df['Symbol'].tolist()
     alltickers_df.set_index("Symbol", drop=False, inplace=True)
     portfolio_df.set_index("Symbol", drop=False, inplace=True)
     for tick in portfolio_tickers:
