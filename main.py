@@ -10,6 +10,9 @@ import Var
 INITIAL_INVESTMENT = 1000000
 NET_LIQUIDITY = 294000
 WEIGHTS = np.array([1])
+ALL_TICKERS_CSV_PATH = "./data/alltickers.xlsx"
+PORTFOLIO_PATH_ORIGINAL = './data/actualportfolio.csv'
+PORTFOLIO_PATH_AFTER_TRANS = "./data/actualportfolio.xlsx"
 
 
 def check_tickers():
@@ -56,7 +59,7 @@ def transform_df(df_path, net_liquidity):
     cols = ['Symbol', 'Type', 'Amount', 'Percentage', 'Sector']
     df = df[cols]
     df.rename(columns={'Type': 'Position', 'Percentage': 'Protfilio Precentage'}, inplace=True)
-    df.to_excel("./data/actualportfolio.xlsx", index=False)
+    df.to_excel(PORTFOLIO_PATH_AFTER_TRANS, index=False)
 
 
 def coloring_portfolio(filename):
@@ -67,7 +70,7 @@ def coloring_portfolio(filename):
     fill_cell1 = PatternFill(patternType='solid', fgColor='FC2C03')
     fill_cell2 = PatternFill(patternType='solid', fgColor='FFFF00')
     fill_cell3 = PatternFill(patternType='solid', fgColor='35FC03')
-    if filename == "./data/alltickers.xlsx":
+    if filename == ALL_TICKERS_CSV_PATH:
         c1, c2 = 'B', 'C'
     else:
         c1, c2 = 'F', 'G'
@@ -116,7 +119,6 @@ def get_var(portfolio_path, alltickers_path):
     portfolio_df.to_excel(portfolio_path, index=False)
 
 
-
 if __name__ == '__main__':
-    transform_df('./data/actualportfolio.csv', NET_LIQUIDITY)  # only for new incoming files
-    get_var("./data/actualportfolio.xlsx", "./data/alltickers.xlsx")  # get var and coloring
+    transform_df(PORTFOLIO_PATH_ORIGINAL, NET_LIQUIDITY)  # only for new incoming files
+    get_var(PORTFOLIO_PATH_AFTER_TRANS, ALL_TICKERS_CSV_PATH)  # get var and coloring

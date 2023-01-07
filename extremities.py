@@ -5,6 +5,8 @@ import datetime as dt
 from matplotlib import pyplot as plt
 import seaborn as sns
 
+PORTFOLIO_PATH_AFTER_TRANS = "./data/actualportfolio.xlsx"
+
 
 def check_sectors(df):
     sectorSum = df.groupby(['Sector']).sum()
@@ -55,7 +57,7 @@ def get_corr_mat(df):
 
 
 if __name__ == '__main__':
-    df = pd.read_excel('finished.xlsx')
+    df = pd.read_excel(PORTFOLIO_PATH_AFTER_TRANS)
     check_sectors(df)
     # check_percentage(df)
     check_amount(df)

@@ -10,6 +10,8 @@ from scipy.stats import norm
 INITIAL_INVESTMENT = 1000000
 NET_LIQUIDITY = 294000
 WEIGHTS = np.array([1])
+ALL_TICKERS_CSV_PATH = "./data/alltickers.xlsx"
+START_DATE_FOR_VAR = "2018-01-01"
 
 
 def calc_var(initial_investment, weights, data):
@@ -26,7 +28,7 @@ def calc_var(initial_investment, weights, data):
     return var_1d1
 
 
-def add_var_to_alltickers(path, initial_inv, weights):
+def add_var_to_alltickers(path, initial_inv, weights, START_DATE):
     df = pd.read_excel(path)
     df['Var'] = 0
     df['Qual'] = 0
@@ -34,7 +36,7 @@ def add_var_to_alltickers(path, initial_inv, weights):
     bad_tickers = []
     for index, ticker in enumerate(tickers):
         try:
-            data = pdr.get_data_yahoo([ticker], start="2018-01-01", end=dt.date.today())['Close']
+            data = pdr.get_data_yahoo([ticker], start=START_DATE, end=dt.date.today())['Close']
             df.at[index, 'Var'] = calc_var(initial_inv, weights, data)
         except:
             bad_tickers.append(ticker)
@@ -45,5 +47,4 @@ def add_var_to_alltickers(path, initial_inv, weights):
 
 
 if __name__ == '__main__':
-    add_var_to_alltickers("./data/alltickers.xlsx", INITIAL_INVESTMENT, np.array([1]))
-
+    add_var_to_alltickers(ALL_TICKERS_CSV_PATH, INITIAL_INVESTMENT, np.array([1]))
