@@ -5,9 +5,11 @@ import yfinance as yf
 import datetime as dt
 import stopLossFunctions
 
-PAIRS_PATH = './data/pairs_exmp.csv'
-POSITION_DIVIDED_PATH = 'positions_divided.csv'
-PORTFOLIO_PATH = 'portfolio.csv'
+PAIRS_PATH = './data/pairs/pairs_exmp.csv'
+POSITION_DIVIDED_PATH = './data/pairs/'
+PORTFOLIO_PATH = './data/pairs/portfolio.csv'
+
+
 class Position:
     def __init__(self, tickerLong, tickerShort, startDate, endDate, operationLong, operationShort, openPriceLong,
                  openPriceShort,
@@ -30,10 +32,11 @@ class Position:
     def create_ratio(self, item):
         long_position = yf.Ticker(self.tickerLong)
         short_position = yf.Ticker(self.tickerShort)
-        date_1 = dt.datetime.strptime(self.endDate, "%Y-%m-%d")
+        start_date = dt.datetime.strptime(self.startDate, "%m/%d/%Y")
+        date_1 = dt.datetime.strptime(self.endDate, "%m/%d/%Y")
         end_date = date_1 + dt.timedelta(days=1)
-        long_position = long_position.history(start=self.startDate, end=end_date, interval='1h')[item].tolist()
-        short_position = short_position.history(start=self.startDate, end=end_date, interval='1h')[item].tolist()
+        long_position = long_position.history(start=start_date, end=end_date, interval='1h')[item].tolist()
+        short_position = short_position.history(start=start_date, end=end_date, interval='1h')[item].tolist()
         long_position = [round(item, 2) for item in long_position]
         short_position = [round(item, 2) for item in short_position]
         divisionResults = [i / j for i, j in zip(long_position, short_position)]
@@ -43,7 +46,6 @@ class Position:
 def create_positions(data):
     positions_list = []
     data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
-    data = data.loc[200:]
     data = data.drop(columns=['Z-Score', 'Commissions', 'Shares', 'P/L'], axis=0)
     positions = [[] for _ in range(round((len(data) / 4)))]
     j = -1
@@ -87,23 +89,38 @@ def create_df_from_objects(objects):
     return df
 
 
-def create_files():
+def create_price_series(portfolio, name):
+    serial_position = []
+    for position in portfolio:
+        div = position.create_ratio(name)
+        serial_position.append(div)
+    series_df = pd.DataFrame(serial_position)
+    series_df.to_csv(f'{POSITION_DIVIDED_PATH}{name}_series.csv', index=False, header=False)
+    return series_df
+
+
+def create_portfolio():
     df = pd.read_csv(PAIRS_PATH)
     portfolio = create_positions(df)
     portfolio_df = create_df_from_objects(portfolio)
     portfolio_df.to_csv(PORTFOLIO_PATH, index=False)
-    closing_position = []
-    for position in portfolio:
-        div = position.create_ratio('Close')
-        closing_position.append(div)
-    closing_positions_df = pd.DataFrame(closing_position)
-    closing_positions_df.to_csv(POSITION_DIVIDED_PATH, index=False, header=False)
+    return portfolio
 
 
 if __name__ == '__main__':
-    create_files()
     df = pd.read_csv(PAIRS_PATH)
-    portfolio = create_positions(df)
-    closing_positions_df = pd.read_csv(POSITION_DIVIDED_PATH, header=None)
-    percentage = 0.95
-    stopLossFunctions.fixed_percentage_stop_loss(portfolio, closing_positions_df, percentage)
+    portfolio = create_portfolio()
+    # closing_positions_df = create_price_series(portfolio, 'Close')
+    # high_positions_df = create_price_series(portfolio, 'High')
+    # low_positions_df = create_price_series(portfolio, 'Low')
+    closing_positions_df = pd.read_csv(f'{POSITION_DIVIDED_PATH}Close_series.csv')
+    high_positions_df = pd.read_csv(f'{POSITION_DIVIDED_PATH}High_series.csv')
+    low_positions_df = pd.read_csv(f'{POSITION_DIVIDED_PATH}Low_series.csv')
+    # percentage = 0.95
+    # time = 10
+    std = 3
+    # stopLossFunctions.fixed_percentage_stop_loss(portfolio, closing_positions_df, percentage)
+    # stopLossFunctions.fixed_time_stop_loss(portfolio, closing_positions_df, time)
+    # stopLossFunctions.atr_stop_loss(portfolio,closing_positions_df,high_positions_df,low_positions_df,0.04)
+    # stopLossFunctions.std_stop_loss(portfolio, closing_positions_df, std)
+    stopLossFunctions.std_stop_loss(portfolio, closing_positions_df, 14, 3)
