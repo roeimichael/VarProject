@@ -89,18 +89,7 @@ def create_df_from_objects(objects):
     return df
 
 
-def create_price_series(portfolio, name):
-    serial_position = []
-    for position in portfolio:
-        div = position.create_ratio(name)
-        serial_position.append(div)
-    series_df = pd.DataFrame(serial_position)
-    series_df.to_csv(f'{POSITION_DIVIDED_PATH}{name}_series.csv', index=False, header=False)
-    return series_df
-
-
-def create_portfolio():
-    df = pd.read_csv(PAIRS_PATH)
+def create_portfolio(df):
     portfolio = create_positions(df)
     portfolio_df = create_df_from_objects(portfolio)
     portfolio_df.to_csv(PORTFOLIO_PATH, index=False)
@@ -109,13 +98,7 @@ def create_portfolio():
 
 if __name__ == '__main__':
     df = pd.read_csv(PAIRS_PATH)
-    portfolio = create_portfolio()
-    # closing_positions_df = create_price_series(portfolio, 'Close')
-    # high_positions_df = create_price_series(portfolio, 'High')
-    # low_positions_df = create_price_series(portfolio, 'Low')
-    closing_positions_df = pd.read_csv(f'{POSITION_DIVIDED_PATH}Close_series.csv')
-    high_positions_df = pd.read_csv(f'{POSITION_DIVIDED_PATH}High_series.csv')
-    low_positions_df = pd.read_csv(f'{POSITION_DIVIDED_PATH}Low_series.csv')
+    portfolio = create_portfolio(df)
     # percentage = 0.95
     # time = 10
     std = 3
