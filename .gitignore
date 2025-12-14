@@ -1,0 +1,64 @@
+# Environment variables and secrets
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Data files (contains personal portfolio data)
+data/actualportfolio.csv
+data/actualportfolio.xlsx
+data/finished.xlsx
+data/pairsPositions.xlsx
+*.csv
+*.xlsx
+
+# Keep example data structure
+!data/.gitkeep
+
+# Images/outputs
+*.png
+*.jpg
+*.jpeg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Trading data
+stock_symbols.csv
