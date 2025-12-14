@@ -40,10 +40,13 @@ data/pairsPositions.xlsx
 # Keep example data structure
 !data/.gitkeep
 
-# Images/outputs
+# Images/outputs (contain portfolio data)
 *.png
 *.jpg
 *.jpeg
+
+# Keep outputs directory structure
+!outputs/.gitkeep
 
 # IDE
 .vscode/

@@ -8,6 +8,7 @@ from openpyxl.styles import PatternFill
 import logging
 import Var
 import config
+import visualization
 
 # Configure logging
 logging.basicConfig(
@@ -193,6 +194,11 @@ if __name__ == '__main__':
         # Calculate VaR and add quality ratings
         get_var(config.PORTFOLIO_PATH_TRANSFORMED, config.ALL_TICKERS_PATH)
         logger.info("Portfolio processing completed successfully")
+
+        # Generate visualizations for presentation/LinkedIn
+        logger.info("\nGenerating portfolio visualizations...")
+        visualization.generate_all_visualizations(config.PORTFOLIO_PATH_TRANSFORMED)
+
     except Exception as e:
         logger.error(f"Portfolio processing failed: {e}", exc_info=True)
         raise
